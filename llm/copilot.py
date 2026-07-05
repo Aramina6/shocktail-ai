@@ -10,33 +10,34 @@ from .prompts import QUICK_PROMPTS, RISK_COPILOT_SYSTEM
 
 
 def render_sidebar_settings():
-    """Provider status and setup hints in the sidebar."""
     st.markdown("**Risk Copilot (LLM)**")
     providers = get_configured_providers()
     if providers:
-        st.success(f"Active: {providers[0].name}")
+        st.success(f"Ready: {', '.join(p.name for p in providers)}")
     else:
-        st.warning("No API key set")
+        st.error("No API key — copilot disabled")
 
-    with st.expander("LLM setup (free)", expanded=not providers):
+    with st.expander("Free LLM setup (pick ONE+)", expanded=not providers):
         st.markdown(
             """
-1. **Groq** (recommended): [console.groq.com](https://console.groq.com) → free API key
-2. **Hugging Face**: [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-3. **Ollama** (local): `ollama pull llama3.1` — zero cost
+**Works on Streamlit Cloud** — no Ollama needed.
 
-Add to `.streamlit/secrets.toml`:
+| Provider | Free signup | Secret key |
+|----------|-------------|------------|
+| **Groq** ⭐ | [console.groq.com/keys](https://console.groq.com/keys) | `GROQ_API_KEY` |
+| **Gemini** | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | `GEMINI_API_KEY` |
+| Hugging Face | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) | `HF_TOKEN` |
+| Together AI | [api.together.xyz](https://api.together.xyz/settings/api-keys) | `TOGETHER_API_KEY` |
+
+Add to `.streamlit/secrets.toml` or **Streamlit Cloud → Settings → Secrets**:
 ```toml
 GROQ_API_KEY = "gsk_..."
-# HF_TOKEN = "hf_..."  # optional fallback
+# GEMINI_API_KEY = "..."   # good free backup
 ```
             """
         )
         for row in get_provider_status():
-            icon = "✅" if row["status"] == "configured" else "⚪"
-            if "local" in row["status"]:
-                icon = "🖥️"
-            st.caption(f"{icon} **{row['name']}** — {row['status']}")
+            st.caption(f"**{row['name']}** — {row['status']}")
 
 
 def _init_chat_state():
@@ -55,49 +56,36 @@ def _append_message(role: str, content: str, meta: str | None = None):
 
 
 def _run_prompt(user_text: str):
-    messages = build_messages(
-        st.session_state,
-        user_text,
-        RISK_COPILOT_SYSTEM,
-    )
+    messages = build_messages(st.session_state, user_text, RISK_COPILOT_SYSTEM)
     preferred = None if st.session_state.copilot_provider == "auto" else st.session_state.copilot_provider
 
     with st.spinner("Generating grounded analysis..."):
-        result = chat_completion(
-            messages,
-            temperature=0.4,
-            preferred_provider=preferred,
-        )
+        result = chat_completion(messages, temperature=0.4, preferred_provider=preferred)
 
     if result["error"] and not result["content"]:
         _append_message("assistant", f"⚠️ {result['error']}")
         return
 
-    meta = None
-    if result["provider"]:
-        meta = f"{result['provider']} · {result['model']}"
+    meta = f"{result['provider']} · {result['model']}" if result["provider"] else None
     _append_message("assistant", result["content"], meta=meta)
 
 
 def render():
-    """Main Risk Copilot tab."""
     _init_chat_state()
 
     st.header("🤖 Risk Copilot")
     st.markdown(
         """
-Ask about your **current cocktail** (scenario mix), portfolio factor exposures,
-transition risk, or how context modules compound with market shocks.
-
-Grounded in Shocktail's live numbers — not generic ChatGPT advice.
+Ask about your **cocktail scenario**, **power/grid stress**, portfolio factors, or compound shocks.
+Grounded in Shocktail's live numbers — not generic ChatGPT.
         """
     )
 
     providers = get_configured_providers()
     if not providers:
-        st.info(
-            "Add a free **GROQ_API_KEY** in `.streamlit/secrets.toml` to enable the copilot. "
-            "See sidebar for setup instructions."
+        st.warning(
+            "⚠️ Add a free **GROQ_API_KEY** or **GEMINI_API_KEY** in Streamlit Secrets. "
+            "See sidebar → Free LLM setup. Ollama does not work on Streamlit Cloud."
         )
 
     provider_names = ["auto"] + [p.name for p in get_configured_providers()]
@@ -105,15 +93,13 @@ Grounded in Shocktail's live numbers — not generic ChatGPT advice.
         "LLM provider",
         options=provider_names,
         index=0,
-        help="Auto tries Groq → Hugging Face → Ollama in order.",
+        help="Auto: Groq → Gemini → Hugging Face → Together (first key that works).",
     )
 
     st.markdown("**Quick actions**")
     qcols = st.columns(4)
-    quick_items = list(QUICK_PROMPTS.items())
-    for i, (key, prompt_text) in enumerate(quick_items):
-        label = key.replace("_", " ").title()
-        if qcols[i % 4].button(label, key=f"quick_{key}"):
+    for i, (key, prompt_text) in enumerate(QUICK_PROMPTS.items()):
+        if qcols[i % 4].button(key.replace("_", " ").title(), key=f"quick_{key}"):
             _append_message("user", prompt_text)
             _run_prompt(prompt_text)
             st.rerun()
@@ -124,7 +110,7 @@ Grounded in Shocktail's live numbers — not generic ChatGPT advice.
             if msg.get("meta"):
                 st.caption(msg["meta"])
 
-    if prompt := st.chat_input("Ask about scenarios, portfolio risk, or physical hazards..."):
+    if prompt := st.chat_input("Ask about scenarios, power grid, portfolio risk..."):
         _append_message("user", prompt)
         _run_prompt(prompt)
         st.rerun()

@@ -13,6 +13,7 @@ import streamlit as st
 from factor_model import market_factor_stress
 from llm import copilot
 from physical_hazard import earthquakes, tropical_cyclones, space_hazards, nfip_insurance
+from power_model import power_stress
 
 
 st.set_page_config(
@@ -42,6 +43,7 @@ with st.sidebar:
         "Attach context",
         options=[
             "None",
+            "Power & Grid Stress",
             "Physical — Earthquakes",
             "Physical — Cyclones",
             "Physical — Space Weather",
@@ -58,12 +60,11 @@ with st.sidebar:
     with st.expander("Product roadmap"):
         st.markdown(
             """
-**Live:** Scenario Bar · Risk Copilot · Market factors
+**Live:** Scenario Bar · Risk Copilot · Power & Grid · Market factors
 
 **Coming:**
 - Portfolio upload + Monte Carlo
 - Transition risk pathways
-- Power & grid stress
 - GPU / token forecasting
             """
         )
@@ -111,7 +112,7 @@ or AI-assisted blends — and see portfolio impact with explainable narratives.
 1. **Scenario Bar** — market factor stress *(live)*
 2. **Portfolio Shaker** — CSV upload, Monte Carlo, PDF export
 3. **Transition Risk** — carbon pathways, policy shocks
-4. **Power & Grid** — data-center / utility stress
+4. **Power & Grid** — data-center / utility stress *(live)*
 5. **GPU & Tokens** — AI infra cost forecasting
 
 Physical hazard data is one **context module** — not our identity.
@@ -123,7 +124,10 @@ Physical hazard data is one **context module** — not our identity.
     )
 
 
-if context_choice == "Physical — Earthquakes":
+if context_choice == "Power & Grid Stress":
+    with st.expander("⚡ Power & Grid Stress — context", expanded=True):
+        power_stress.render()
+elif context_choice == "Physical — Earthquakes":
     with st.expander("🌍 Earthquakes (USGS) — context", expanded=False):
         earthquakes.render()
 elif context_choice == "Physical — Cyclones":

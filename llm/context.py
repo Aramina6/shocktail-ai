@@ -56,9 +56,29 @@ def build_risk_context(session_state: Any) -> str:
             if value:
                 parts.append(f"- {key}: {value}")
 
-    sidebar_module = getattr(session_state, "phys_sidebar_choice", None)
-    if sidebar_module:
-        parts.append(f"\nUser is viewing physical module: {sidebar_module}")
+    power = getattr(session_state, "power_context", None) or {}
+    if power:
+        parts.append("\n## Power & Grid Context")
+        if power.get("cocktail_name"):
+            parts.append(f"Power cocktail: {power['cocktail_name']}")
+        parts.append(f"Power scenario: {power.get('power_scenario', 'N/A')}")
+        parts.append(f"Description: {power.get('description', '')}")
+        parts.append(f"Grid stress score: {power.get('grid_stress_score', 'N/A')}/100")
+        if power.get("aggregate_heat_stress") is not None:
+            parts.append(f"Live avg heat stress: {power['aggregate_heat_stress']}/100")
+        if power.get("hottest_region"):
+            parts.append(f"Hottest hub: {power['hottest_region']}")
+        if power.get("electricity_cpi_yoy_pct") is not None:
+            parts.append(f"Electricity CPI YoY: {power['electricity_cpi_yoy_pct']:.1f}%")
+        hints = power.get("factor_shock_hints", {})
+        if hints:
+            parts.append("Suggested factor hints (%):")
+            parts.append(_format_dict(hints, "%"))
+        sectors = power.get("sectors_impacted", [])
+        if sectors:
+            parts.append("Power-impacted sectors:")
+            for s in sectors:
+                parts.append(f"  - {s}")
 
     return "\n".join(parts)
 

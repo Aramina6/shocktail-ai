@@ -28,9 +28,13 @@ QUICK_PROMPTS = {
         "Plain English, no jargon. Include the headline return impact and key risks."
     ),
     "physical_to_market": (
-        "Given any active physical hazards in the context, suggest which historical "
-        "market scenario is closest and how physical events could compound with "
+        "Given power/grid context and any physical hazards, suggest which historical "
+        "market scenario is closest and how power stress could compound with "
         "the current factor shocks."
+    ),
+    "power_impact": (
+        "Explain the current power/grid stress scenario. Cover data-center exposure, "
+        "utility sectors, suggested factor hints, and portfolio implications."
     ),
     "hedging_ideas": (
         "Based on the factor shocks and portfolio betas, suggest 3 practical "
