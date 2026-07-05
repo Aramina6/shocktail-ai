@@ -45,10 +45,10 @@ def _save_power_context(
 
 
 def render():
-    st.subheader("⚡ Power & Grid Stress")
+    st.markdown('<div class="st-section-label">Infrastructure Intelligence</div>', unsafe_allow_html=True)
     st.caption(
-        "Live heat stress at major grid hubs + electricity CPI trend + stylized power scenarios. "
-        "Free data: Open-Meteo, FRED."
+        "Alternative data: regional heat stress at grid hubs, electricity CPI, power stress scenarios. "
+        "Sources: Open-Meteo, FRED."
     )
 
     heat_df = fetch_regional_heat_stress()

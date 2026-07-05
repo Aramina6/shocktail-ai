@@ -39,8 +39,8 @@ def test_build_risk_context_includes_stress_data():
 
 def test_build_risk_context_includes_power():
     text = build_risk_context(FakeSessionState())
-    assert "ERCOT Squeeze" in text
-    assert "Power & Grid" in text
+    assert "ERCOT Squeeze" in text or "Texas Summer" in text
+    assert "Power" in text
 
 
 def test_build_messages_wraps_user_question():

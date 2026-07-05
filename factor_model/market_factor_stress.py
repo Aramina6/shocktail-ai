@@ -32,21 +32,17 @@ def _save_stress_context(
 
 def render():
     """Render the pure market factor stress testing UI with scenario library."""
-    st.subheader("🍸 Scenario Bar")
-    st.caption("Mix factor shocks — shaken, not stirred.")
+    st.markdown('<div class="st-section-label">Scenario Intelligence</div>', unsafe_allow_html=True)
+    st.markdown("Interactive factor stress engine — historical crises, custom shocks, portfolio impact.")
 
-    with st.expander("How this works (business explanation)", expanded=False):
+    with st.expander("Methodology", expanded=False):
         st.markdown(
             """
-        We load real daily Fama-French 5-Factor returns + build an annualized
-        covariance matrix from the last 5 years.
+        **Data:** Daily Fama-French 5-Factor returns (Ken French Data Library).
+        **Model:** Annualized covariance matrix (5-year lookback) + factor beta propagation.
+        **Scenarios:** Stylized historical crisis presets calibrated to observed factor behavior.
 
-        You can either:
-        - Load a pre-defined historical/stylized scenario (recommended for decision making), or
-        - Manually adjust the factor shocks with the sliders.
-
-        Each scenario also shows which industries are typically most impacted.
-        Use the **Risk Copilot** tab for AI-generated narratives grounded in these numbers.
+        Use **Research Copilot** to generate analyst narratives from these outputs.
         """
         )
 
@@ -60,10 +56,10 @@ def render():
         st.error(f"Failed to load Fama-French data: {e}")
         return
 
-    st.markdown("**Load Historical or Stylized Scenario**")
+    st.markdown("**Crisis scenario library**")
     scenario_names = get_scenario_names()
     selected_scenario = st.selectbox(
-        "Choose a scenario",
+        "Select scenario",
         options=scenario_names,
         index=0,
         help="Selecting a scenario suggests factor shocks based on historical behavior.",
@@ -74,11 +70,11 @@ def render():
     industries = scenario["industries_impacted"]
     description = scenario["description"]
 
-    cocktail = scenario.get("cocktail_name", "")
+    codename = scenario.get("cocktail_name", "")
     if selected_scenario != "Custom (Manual Shocks)":
-        title = f"**{cocktail}** — {selected_scenario}" if cocktail else f"**{selected_scenario}**"
+        title = f"**{codename}** · {selected_scenario}" if codename else f"**{selected_scenario}**"
         st.info(f"{title}\n\n{description}")
-        st.markdown("**Industries Typically Most Impacted:**")
+        st.markdown("**Sector exposure map:**")
         for ind in industries:
             st.markdown(f"- {ind}")
 
@@ -166,7 +162,7 @@ def render():
         factor_vol=factor_vol,
     )
 
-    st.subheader("Estimated Portfolio Impact")
+    st.markdown('<div class="st-section-label">Portfolio impact estimate</div>', unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
         st.metric("Expected Return Impact", f"{expected_impact:.2f}%")
@@ -174,8 +170,7 @@ def render():
         st.metric("Factor-Driven Volatility (annualized)", f"{factor_vol:.1f}%")
 
     st.caption(
-        "Scenarios are stylized based on historical factor behavior. "
-        "Switch to the Risk Copilot tab for an AI narrative."
+        "Stylized scenarios for research purposes. Open Research Copilot for analyst-grade narrative."
     )
 
     with st.expander("View Current Covariance Matrix"):

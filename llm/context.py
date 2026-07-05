@@ -23,10 +23,10 @@ def build_risk_context(session_state: Any) -> str:
 
     stress = getattr(session_state, "stress_context", None) or {}
     if stress:
-        parts.append("## Current Shocktail Scenario")
-        cocktail = stress.get("cocktail_name", "")
-        if cocktail:
-            parts.append(f"Cocktail: {cocktail}")
+        parts.append("## Active Scenario Intelligence")
+        codename = stress.get("cocktail_name", "")
+        if codename:
+            parts.append(f"Scenario codename: {codename}")
         parts.append(f"Scenario: {stress.get('scenario_name', 'Not set')}")
         parts.append(f"Description: {stress.get('scenario_description', '')}")
         parts.append(f"Expected return impact: {stress.get('expected_return_impact_pct', 'N/A')}%")
