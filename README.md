@@ -7,6 +7,8 @@ Interactive scenario intelligence for advisors, portfolio managers, and risk tea
 [![GitHub](https://img.shields.io/badge/GitHub-shocktail--ai-181717?logo=github)](https://github.com/Aramina6/shocktail-ai)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://realtime-disasters-monitoring-cxephdtyww4jf2dwjunnhq.streamlit.app/)
 
+**Topics:** `fintech` · `quantitative-finance` · `risk-management` · `stress-testing` · `streamlit` · `llm` · `ai-copilot` · `startup`
+
 ---
 
 ## What It Does
