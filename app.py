@@ -1,10 +1,5 @@
 # app.py
-"""
-Shocktail.ai — AI Market Intelligence Platform
-
-Positioning: AlphaSense-class scenario & alternative-data intelligence
-for portfolio managers, analysts, and risk teams.
-"""
+"""Shocktail.ai — AI Market Intelligence Platform."""
 
 import streamlit as st
 
@@ -12,7 +7,7 @@ from factor_model import market_factor_stress
 from llm import copilot
 from physical_hazard import earthquakes, tropical_cyclones, space_hazards, nfip_insurance
 from power_model import power_stress
-from ui import inject_theme, render_hero, render_platform_stats, render_vs_alphasense
+from ui import inject_theme, render_hero, render_platform_stats, render_value_props
 from ui.components import render_alt_data_selector
 
 
@@ -25,7 +20,6 @@ st.set_page_config(
 
 inject_theme()
 
-# ── Sidebar: Intelligence Console ──────────────────────────────────────────
 with st.sidebar:
     st.markdown("### Shocktail")
     st.caption("AI Market Intelligence")
@@ -38,23 +32,22 @@ with st.sidebar:
     copilot.render_sidebar_settings()
 
     st.divider()
-    with st.expander("Roadmap vs AlphaSense"):
+    with st.expander("Roadmap"):
         st.markdown(
             """
-**Live now**
-- Scenario Intelligence (factor stress)
-- Research Copilot (grounded LLM)
+**Live**
+- Scenario Intelligence
+- Research Copilot
 - Infrastructure & geophysical signals
 
-**Building next**
-- Document search (SEC filings, transcripts)
+**Building**
+- Document search (SEC filings)
 - Portfolio upload + Monte Carlo
-- Transition risk & GPU/token economics
+- Transition risk & compute economics
 - Team workspaces + API
             """
         )
 
-# ── Main workspace ─────────────────────────────────────────────────────────
 render_hero()
 
 overview_tab, scenario_tab, copilot_tab, platform_tab = st.tabs([
@@ -67,14 +60,14 @@ overview_tab, scenario_tab, copilot_tab, platform_tab = st.tabs([
 with overview_tab:
     render_platform_stats()
     st.divider()
-    render_vs_alphasense()
+    render_value_props()
     st.divider()
     st.markdown('<div class="st-section-label">Quick start</div>', unsafe_allow_html=True)
     st.markdown(
         """
-1. **Scenario Intelligence** — load a historical crisis preset or build a custom shock
+1. **Scenario Intelligence** — load a crisis preset or build a custom factor shock
 2. **Attach alt data** — power grid, geophysical, or insurance signals (sidebar)
-3. **Research Copilot** — generate analyst-grade narratives grounded in live numbers
+3. **Research Copilot** — generate analyst narratives grounded in live numbers
         """
     )
 
@@ -88,37 +81,34 @@ with platform_tab:
     st.markdown('<div class="st-section-label">Product vision</div>', unsafe_allow_html=True)
     st.markdown(
         """
-### Shocktail.ai — the scenario intelligence layer
+### Shocktail.ai
 
-**Shocktail** is building the **accessible alternative to enterprise market intelligence platforms**.
-Where AlphaSense dominates document search for large institutions, Shocktail owns the
-**interactive scenario research workflow**: stress portfolios, attach alternative data,
-and produce AI narratives that cite real factor math.
+Interactive scenario research for portfolio managers, analysts, and risk teams.
+Stress factor exposures, layer alternative data, and produce AI research narratives
+grounded in transparent quantitative models.
 
 ### Who it's for
 
 | Segment | Use case |
 |---------|----------|
-| **Buy-side analysts** | Crisis scenario research, sector impact memos |
-| **Wealth advisors / RIAs** | Client-ready stress narratives |
-| **Risk managers** | Factor exposure stress testing |
-| **Fintech builders** | Embeddable scenario API (roadmap) |
+| Buy-side analysts | Crisis scenario research, sector impact memos |
+| Wealth advisors | Client-ready stress narratives |
+| Risk managers | Factor exposure stress testing |
+| Fintech builders | Embeddable scenario API (roadmap) |
 
 ### Pricing (planned)
 
 | Tier | Price | Includes |
 |------|-------|----------|
-| **Intelligence** (Free) | $0 | Scenarios, copilot, alt data |
-| **Professional** | $99/mo | White-label reports, CSV upload |
-| **Team** | $499/mo | Seats, shared research, API |
-| **Enterprise** | Custom | SSO, custom data feeds, SLA |
+| Intelligence (Free) | $0 | Scenarios, copilot, alt data |
+| Professional | $99/mo | White-label reports, CSV upload |
+| Team | $499/mo | Seats, shared research, API |
+| Enterprise | Custom | SSO, custom feeds, SLA |
 
 *Educational use only — not investment advice.*
         """
     )
-    render_vs_alphasense()
 
-# ── Alternative data panel ─────────────────────────────────────────────────
 if alt_data == "power_grid":
     st.markdown("---")
     st.markdown('<div class="st-section-label">Alternative Data · Infrastructure</div>', unsafe_allow_html=True)
@@ -143,7 +133,7 @@ elif alt_data == "flood_insurance":
 st.markdown(
     """
 <div class="st-footer">
-    Shocktail.ai · AI Market Intelligence · Scenario Research · Alternative Data ·
+    Shocktail.ai · AI Market Intelligence ·
     <a href="https://github.com/Aramina6/shocktail-ai" style="color:#D4A853">GitHub</a>
 </div>
     """,

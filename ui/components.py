@@ -16,8 +16,7 @@ def render_hero():
         grounded in quantitative models, not hallucinated summaries.
     </p>
     <p class="positioning">
-        The accessible intelligence layer for teams who need AlphaSense-class insight
-        without enterprise contracts.
+        Professional-grade market intelligence for analysts, portfolio managers, and risk teams.
     </p>
     <div class="st-stat-row">
         <span class="st-stat-pill"><strong>Live</strong> Factor stress engine</span>
@@ -40,50 +39,43 @@ def render_platform_stats():
     with c3:
         st.metric("Alt Data Modules", "5", help="Power, geophysical, insurance")
     with c4:
-        st.metric("AI Engine", "Groq", help="Free-tier LLM with grounded context")
+        st.metric("AI Engine", "Groq", help="Grounded LLM with live context")
 
 
-def render_vs_alphasense():
-    st.markdown('<div class="st-section-label">Competitive Position</div>', unsafe_allow_html=True)
-    st.markdown(
-        """
-<div class="st-compare-grid">
-    <div class="st-compare-card">
-        <h4>Traditional platforms (AlphaSense, Bloomberg)</h4>
-        <ul>
-            <li>$10K–$30K+ per seat annually</li>
-            <li>Document search across filings & transcripts</li>
-            <li>Enterprise sales cycles & opaque pricing</li>
-            <li>Limited interactive scenario stress testing</li>
-            <li>Generic AI summaries without factor grounding</li>
-        </ul>
-    </div>
-    <div class="st-compare-card shocktail">
-        <h4>Shocktail.ai — scenario intelligence wedge</h4>
-        <ul>
-            <li>Free tier → $99/mo pro (planned) — 100× more accessible</li>
-            <li>Interactive factor stress + crisis scenario library</li>
-            <li>Research Copilot grounded in live quantitative context</li>
-            <li>Alternative data: power grid, geophysical, insurance losses</li>
-            <li>Transparent methodology — every number traceable to source</li>
-        </ul>
-    </div>
-</div>
-        """,
-        unsafe_allow_html=True,
-    )
+def render_value_props():
+    st.markdown('<div class="st-section-label">Platform capabilities</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown(
+            """
+**Scenario Intelligence**
+- Historical crisis presets + custom factor shocks
+- Fama-French covariance propagation
+- Sector exposure mapping
 
-    st.markdown(
-        """
-**Our wedge:** AlphaSense wins on document corpus search at enterprise scale.
-**Shocktail wins** on interactive *what-if* scenario research, quant-grounded AI narratives,
-and alternative risk signals — the workflow analysts use *after* they find the document.
-        """
-    )
+**Research Copilot**
+- Analyst-grade narratives from live context
+- Executive summaries & sector memos
+- Every claim tied to quantitative inputs
+            """
+        )
+    with c2:
+        st.markdown(
+            """
+**Alternative Data**
+- Power grid & infrastructure stress
+- Geophysical event signals
+- Insurance loss aggregates (US)
+
+**Transparent by design**
+- Open data sources with methodology docs
+- No black-box model outputs
+- Educational / research use
+            """
+        )
 
 
 def render_alt_data_selector() -> str:
-    """Sidebar-style alt data picker; returns selection key."""
     return st.selectbox(
         "Signal feed",
         options=[

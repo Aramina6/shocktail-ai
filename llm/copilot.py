@@ -1,4 +1,4 @@
-"""Research Copilot — AlphaSense-class grounded AI narratives."""
+"""Research Copilot — grounded AI narratives for market intelligence."""
 
 from __future__ import annotations
 
@@ -58,8 +58,7 @@ def render():
     st.markdown(
         """
 Ask research questions about your **active scenario**, **factor exposures**, or **alternative data signals**.
-Unlike generic AI, every answer is grounded in Shocktail's live quantitative context —
-the workflow AlphaSense users need *after* they find the document.
+Every answer is grounded in Shocktail's live quantitative context.
         """
     )
 
@@ -78,7 +77,7 @@ the workflow AlphaSense users need *after* they find the document.
         "executive_summary": "Executive Summary",
         "sector_memo": "Sector Memo",
         "alt_data_brief": "Alt Data Brief",
-        "alphasense_style_qa": "IC Briefing",
+        "ic_briefing": "IC Briefing",
         "risk_actions": "Risk Actions",
     }
     cols = st.columns(5)

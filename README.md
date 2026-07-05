@@ -9,16 +9,15 @@
 
 ## Positioning
 
-**Shocktail** is the accessible intelligence layer for teams who need **AlphaSense-class scenario research**
-without enterprise contracts. Where AlphaSense dominates document search, Shocktail owns
-**interactive what-if analysis** with quant-grounded AI narratives.
+**Shocktail** is an AI market intelligence platform for scenario research — interactive
+what-if analysis with quant-grounded narratives and alternative data signals.
 
-| Capability | Shocktail | Enterprise platforms |
-|------------|-----------|---------------------|
-| Factor stress scenarios | ✅ Live | Limited |
-| Grounded Research Copilot | ✅ Live | Generic AI add-on |
-| Alternative data (power, geo, insurance) | ✅ Live | Enterprise $$$ |
-| SEC filing / transcript search | 🔜 Roadmap | ✅ Core |
+| Capability | Status |
+|------------|--------|
+| Factor stress scenarios | ✅ Live |
+| Grounded Research Copilot | ✅ Live |
+| Alternative data (power, geo, insurance) | ✅ Live |
+| Document search (SEC filings) | 🔜 Roadmap |
 
 ---
 

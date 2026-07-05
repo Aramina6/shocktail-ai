@@ -1,4 +1,4 @@
-"""AlphaSense-class enterprise theme for Shocktail.ai."""
+"""Enterprise market intelligence theme for Shocktail.ai."""
 
 import streamlit as st
 
