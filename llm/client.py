@@ -1,9 +1,7 @@
-"""Multi-provider LLM client — free hosted tiers only by default.
+"""Shocktail Intelligence Engine — internal LLM layer.
 
-Default chain (all free signup, works on Streamlit Cloud):
-  Groq → Google Gemini → Hugging Face → Together AI
-
-Ollama is opt-in only (local). It is NOT tried unless ENABLE_OLLAMA=true.
+Product rule: users never see provider names, API keys, or infra details.
+Operators configure GROQ_API_KEY in Streamlit Secrets (deploy-time only).
 """
 
 from __future__ import annotations
@@ -18,53 +16,33 @@ try:
 except ImportError:
     st = None
 
+PRODUCT_NAME = "Shocktail Intelligence Engine"
+PRIMARY_KEY = "GROQ_API_KEY"
+PRIMARY_MODEL = "groq/llama-3.3-70b-versatile"
+
+USER_UNAVAILABLE_MSG = (
+    "Research Copilot is temporarily unavailable. "
+    "Please try again in a few moments."
+)
+
+OPERATOR_SETUP_MSG = (
+    "Operator: set GROQ_API_KEY in Streamlit Cloud → Settings → Secrets, then reboot."
+)
+
 
 @dataclass(frozen=True)
-class ProviderConfig:
-    name: str
+class _Provider:
     model: str
     api_key_env: str
-    signup_url: str
-    api_base: str | None = None
-    opt_in_env: str | None = None  # if set, only used when env is "true"
 
 
-# Hosted free providers — no Ollama in default chain
-HOSTED_PROVIDER_CHAIN: list[ProviderConfig] = [
-    ProviderConfig(
-        "groq",
-        "groq/llama-3.3-70b-versatile",
-        "GROQ_API_KEY",
-        "https://console.groq.com/keys",
-    ),
-    ProviderConfig(
-        "gemini",
-        "gemini/gemini-2.0-flash",
-        "GEMINI_API_KEY",
-        "https://aistudio.google.com/apikey",
-    ),
-    ProviderConfig(
-        "huggingface",
-        "huggingface/meta-llama/Meta-Llama-3.1-8B-Instruct",
-        "HF_TOKEN",
-        "https://huggingface.co/settings/tokens",
-    ),
-    ProviderConfig(
-        "together",
-        "together_ai/meta-llama/Llama-3-8b-chat-hf",
-        "TOGETHER_API_KEY",
-        "https://api.together.xyz/settings/api-keys",
-    ),
+# Silent fallbacks — never surfaced in product UI
+_FALLBACK_CHAIN: list[_Provider] = [
+    _Provider(PRIMARY_MODEL, PRIMARY_KEY),
+    _Provider("gemini/gemini-2.0-flash", "GEMINI_API_KEY"),
+    _Provider("huggingface/meta-llama/Meta-Llama-3.1-8B-Instruct", "HF_TOKEN"),
+    _Provider("together_ai/meta-llama/Llama-3-8b-chat-hf", "TOGETHER_API_KEY"),
 ]
-
-OLLAMA_PROVIDER = ProviderConfig(
-    "ollama",
-    "ollama/llama3.1",
-    "OLLAMA_API_KEY",  # unused; kept for struct consistency
-    "https://ollama.com",
-    api_base="http://localhost:11434",
-    opt_in_env="ENABLE_OLLAMA",
-)
 
 
 def _resolve_secret(env_name: str) -> str | None:
@@ -77,89 +55,32 @@ def _resolve_secret(env_name: str) -> str | None:
         except Exception:
             pass
     val = os.environ.get(env_name, "").strip()
-    if val and "your_" not in val:
-        return val
-    return None
+    return val if val and "your_" not in val else None
 
 
-def _ollama_enabled() -> bool:
-    flag = _resolve_secret("ENABLE_OLLAMA") or os.environ.get("ENABLE_OLLAMA", "")
-    return str(flag).lower() in ("1", "true", "yes")
+def is_copilot_available() -> bool:
+    return len(_active_providers()) > 0
 
 
-def get_provider_chain() -> list[ProviderConfig]:
-    chain = list(HOSTED_PROVIDER_CHAIN)
-    if _ollama_enabled():
-        chain.append(OLLAMA_PROVIDER)
-    return chain
+def get_copilot_status() -> str:
+    return "Online" if is_copilot_available() else "Offline"
 
 
-# Back-compat alias for tests
-PROVIDER_CHAIN = get_provider_chain
+def _active_providers() -> list[_Provider]:
+    return [p for p in _FALLBACK_CHAIN if _resolve_secret(p.api_key_env)]
 
 
-def get_configured_providers() -> list[ProviderConfig]:
-    """Return hosted providers with valid API keys (+ Ollama if explicitly enabled)."""
-    available: list[ProviderConfig] = []
-    for provider in get_provider_chain():
-        if provider.name == "ollama":
-            if _ollama_enabled():
-                available.append(provider)
-            continue
-        if _resolve_secret(provider.api_key_env):
-            available.append(provider)
-    return available
+# Back-compat for tests
+def get_configured_providers():
+    return _active_providers()
 
 
-def get_provider_status() -> list[dict[str, str]]:
-    statuses = []
-    for provider in HOSTED_PROVIDER_CHAIN:
-        if _resolve_secret(provider.api_key_env):
-            statuses.append({
-                "name": provider.name,
-                "model": provider.model,
-                "status": "configured ✅",
-                "signup": provider.signup_url,
-            })
-        else:
-            statuses.append({
-                "name": provider.name,
-                "model": provider.model,
-                "status": f"needs {provider.api_key_env}",
-                "signup": provider.signup_url,
-            })
-    ollama_status = "enabled (local)" if _ollama_enabled() else "disabled (set ENABLE_OLLAMA=true)"
-    statuses.append({
-        "name": "ollama",
-        "model": OLLAMA_PROVIDER.model,
-        "status": ollama_status,
-        "signup": OLLAMA_PROVIDER.signup_url,
-    })
-    return statuses
+PROVIDER_CHAIN = _FALLBACK_CHAIN
 
 
-def _setup_help_message() -> str:
-    return (
-        "**No free LLM key found.** Add at least ONE of these to "
-        "`.streamlit/secrets.toml` (or Streamlit Cloud → Secrets):\n\n"
-        "```toml\n"
-        "GROQ_API_KEY = \"gsk_...\"       # https://console.groq.com/keys (recommended)\n"
-        "GEMINI_API_KEY = \"...\"         # https://aistudio.google.com/apikey (free)\n"
-        "HF_TOKEN = \"hf_...\"            # https://huggingface.co/settings/tokens\n"
-        "TOGETHER_API_KEY = \"...\"       # https://api.together.xyz (signup credits)\n"
-        "```\n\n"
-        "Ollama is **not** used on Streamlit Cloud. Do not rely on it unless running locally "
-        "with `ENABLE_OLLAMA = \"true\"`."
-    )
-
-
-def _apply_provider_env(provider: ProviderConfig) -> None:
-    if provider.name != "ollama":
-        key = _resolve_secret(provider.api_key_env)
-        if key:
-            os.environ[provider.api_key_env] = key
-    if provider.api_base:
-        os.environ["OLLAMA_API_BASE"] = provider.api_base
+def get_provider_status():
+    """Internal/debug only — not used in product UI."""
+    return [{"status": get_copilot_status()}]
 
 
 def chat_completion(
@@ -172,48 +93,41 @@ def chat_completion(
 ) -> dict[str, Any]:
     from litellm import completion
 
-    providers = get_configured_providers()
-    if preferred_provider and preferred_provider != "auto":
-        providers = sorted(
-            providers,
-            key=lambda p: 0 if p.name == preferred_provider else 1,
-        )
-
+    providers = _active_providers()
     if not providers:
         return {
             "content": None,
             "provider": None,
             "model": None,
-            "error": _setup_help_message(),
+            "error": USER_UNAVAILABLE_MSG,
+            "operator_hint": OPERATOR_SETUP_MSG,
         }
 
     errors: list[str] = []
 
     for provider in providers:
-        _apply_provider_env(provider)
+        key = _resolve_secret(provider.api_key_env)
+        if key:
+            os.environ[provider.api_key_env] = key
+
         for attempt in range(max_retries):
             try:
-                kwargs: dict[str, Any] = {
-                    "model": provider.model,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                    "timeout": 60,
-                }
-                if provider.name == "ollama":
-                    kwargs["api_base"] = provider.api_base
-
-                response = completion(**kwargs)
+                response = completion(
+                    model=provider.model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    timeout=60,
+                )
                 content = response.choices[0].message.content
                 return {
                     "content": content,
-                    "provider": provider.name,
-                    "model": provider.model,
+                    "provider": PRODUCT_NAME,
+                    "model": None,
                     "error": None,
                 }
             except Exception as exc:
-                err_msg = f"{provider.name}: {type(exc).__name__}"
-                errors.append(err_msg)
+                errors.append(type(exc).__name__)
                 if attempt < max_retries - 1:
                     time.sleep(1.0 * (attempt + 1))
 
@@ -221,9 +135,6 @@ def chat_completion(
         "content": None,
         "provider": None,
         "model": None,
-        "error": (
-            "All configured providers failed. Try a different key or provider.\n"
-            + " | ".join(errors)
-            + "\n\n" + _setup_help_message()
-        ),
+        "error": USER_UNAVAILABLE_MSG,
+        "operator_hint": OPERATOR_SETUP_MSG,
     }

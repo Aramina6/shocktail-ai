@@ -28,7 +28,6 @@ with st.sidebar:
     alt_data = render_alt_data_selector()
 
     st.divider()
-    st.markdown('<div class="st-section-label">AI Engine</div>', unsafe_allow_html=True)
     copilot.render_sidebar_settings()
 
     st.divider()

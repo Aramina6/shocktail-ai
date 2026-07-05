@@ -39,7 +39,8 @@ def render_platform_stats():
     with c3:
         st.metric("Alt Data Modules", "5", help="Power, geophysical, insurance")
     with c4:
-        st.metric("AI Engine", "Groq", help="Grounded LLM with live context")
+        from llm.client import get_copilot_status
+        st.metric("Research Copilot", get_copilot_status())
 
 
 def render_value_props():

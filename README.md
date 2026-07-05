@@ -42,7 +42,7 @@ copy .streamlit\secrets.toml.example .streamlit\secrets.toml
 streamlit run app.py
 ```
 
-**Streamlit Cloud:** add `GROQ_API_KEY` in App Settings → Secrets.
+**Deploy (operator):** add `GROQ_API_KEY` in Streamlit Cloud → Settings → Secrets. End users never see this.
 
 ---
 
